@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="Ibatis" xmlns="http://ibatis.apache.org/mapping"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!--创建类的别名-->
+  <alias>
+    <typeAlias alias="User" type="TongManage.Models.User, TongManage" />
+  </alias>
+
+  <resultMaps>
+    <!--User类与db表的映射-->
+    <resultMap id="User" class="User">
+      <result property="Id" column="Id"/>
+      <result property="Name" column="Name"/>
+      <result property="UserPhoto" column="User_Photo"/>
+      <result property="RoleId" column="Role_Id"/>
+      <result property="Password" column="Password"/>
+      <result property="Email" column="Email"/>
+      <result property="WorkNo" column="Work_No"/>
+      <result property="WorkcellId" column="Workcell_Id"/>
+      <result property="GmtCreate" column="Gmt_Create" />
+      <result property="GmtModified" column="Gmt_Modified"  />
+      <result property="IsDeleted" column="Is_Deleted" />
+    </resultMap>
+  </resultMaps>
+
+  <statements>
+    
+    <!--查询所有记录-->
+    <select id="SelectAllUsers" parameterClass="User" resultMap="User">
+      SELECT * from fixture_user
+      WHERE is_deleted = 0
+      <isNotEqual prepend="AND" property="WorkcellId" compareValue="-1">
+        workcell_id = #WorkcellId#
+      </isNotEqual>
+    </select>
+
+    <!--查询单条用户记录-->
+    <select id="SelectUser" parameterClass="User" resultMap="User" >
+      SELECT * from fixture_user
+      WHERE is_deleted = 0      
+      <isNotEqual prepend="AND" property="Id" compareValue="-1">
+        id = #Id#
+      </isNotEqual> 
+      <isNotNull property="WorkcellId">
+        <isNotEqual prepend="AND" property="WorkcellId" compareValue="-1">
+          workcell_id = #WorkcellId#
+        </isNotEqual>
+      </isNotNull>      
+      <isNotNull prepend="AND" property="WorkNo">
+        work_no = #WorkNo#
+      </isNotNull>
+      <isNotNull prepend="AND" property="Name">
+        name = #Name#
+      </isNotNull>
+    </select>
+
+    <!--插入新记录-->
+    <insert id="InsertUser" parameterClass="User">
+      INSERT into fixture_user ( Name, User_Photo, Role_Id, Password, Email, Work_No, Workcell_Id, Gmt_Create, Gmt_Modified, Is_Deleted)
+      values ( #Name#, #UserPhoto#, #RoleId#, #Password#, #Email#, #WorkNo#, #WorkcellId#, #GmtCreate#, #GmtModified#, #IsDeleted#)
+      <selectKey resultClass="int" type="post" property="id" >
+        select LAST_INSERT_ID() as value
+      </selectKey>
+    </insert>
+
+    <!--更新单条记录-->
+    <update id="UpdateUser" parameterClass="User">
+      UPDATE fixture_user SET
+      Name = #Name#,
+      User_Photo = #UserPhoto#,
+      Role_Id = #RoleId#,
+      Password = #Password#,
+      Email = #Email#,
+      Work_No = #WorkNo#,
+      Workcell_Id = #WorkcellId#,
+      Gmt_Create = #GmtCreate#,
+      Gmt_Modified = #GmtModified#,
+      WHERE id = #Id# AND is_deleted = 0
+    </update>
+
+    <!--根据主键删除单条记录-->
+    <update id="DeleteUserById" parameterClass="User">
+      UPDATE fixture_user
+      SET Is_Deleted = 1
+      WHERE id = #id#
+    </update>
+
+  </statements>
+
+</sqlMap>
+

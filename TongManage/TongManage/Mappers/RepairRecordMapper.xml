@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="Ibatis" xmlns="http://ibatis.apache.org/mapping"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!--创建类的别名-->
+  <alias>
+    <typeAlias alias="RepairRecord" type="TongManage.Models.RepairRecord, TongManage" />
+  </alias>
+
+  <resultMaps>
+    <!--RepairRecord类与db表的映射-->
+    <resultMap id="RepairRecord" class="RepairRecord">
+      <result property="Id" column="Id"/>
+      <result property="RepairOn" column="Repair_On"/>
+      <result property="TongId" column="Tong_Id"/>
+      <result property="Description" column="Description"/>
+      <result property="RepairOverOn" column="Repair_Over_On"/>
+      <result property="WorkcellId" column="Workcell_Id"/>
+      <result property="Status" colume="Status"/>
+      <result property="GmtCreate" column="Gmt_Create" />
+      <result property="GmtModified" column="Gmt_Modified"  />
+      <result property="IsDeleted" column="Is_Deleted" />
+    </resultMap>
+  </resultMaps>
+
+  <statements>
+
+    <!--查询所有记录-->
+    <select id="SelectAllRepairRecords" parameterClass="RepairRecord" resultMap="RepairRecord">
+      SELECT * from fixture_repair_record
+      WHERE is_deleted = 0
+      <isNotEqual prepend="AND" property="WorkcellId" compareValue="-1">
+        workcell_id = #WorkcellId#
+      </isNotEqual>
+    </select>
+
+    <!--查询完成维修的记录-->
+    <select id="SelectAllCompleteRecords" parameterClass="RepairRecord" resultMap="RepairRecord">
+      SELECT * from fixture_repair_record
+      WHERE is_deleted = 0 AND Repair_Over_On is not null
+      <isNotEqual prepend="AND" property="WorkcellId" compareValue="-1">
+        workcell_id = #WorkcellId#
+      </isNotEqual>
+    </select>
+
+    <!--查询未完成维修的记录-->
+    <select id="SelectAllNotCompleteRecords" parameterClass="RepairRecord" resultMap="RepairRecord">
+      SELECT * from fixture_repair_record
+      WHERE is_deleted = 0 AND Repair_Over_On is null
+      <isNotEqual prepend="AND" property="WorkcellId" compareValue="-1">
+        workcell_id = #WorkcellId#
+      </isNotEqual>
+    </select>
+    
+    <!--查询单条记录-->
+    <select id="SelectRepairRecordById" parameterClass="RepairRecord" resultMap="RepairRecord" >
+      SELECT * from fixture_repair_record
+      WHERE is_deleted = 0
+      <isNotEqual prepend="AND" property="Id" compareValue="-1">
+        id = #Id#
+      </isNotEqual>
+      <isNotEqual prepend="AND" property="WorkcellId" compareValue="-1">
+        workcell_id = #WorkcellId#
+      </isNotEqual>
+    </select>
+
+    <!--插入新记录-->
+    <insert id="InsertRepairRecord" parameterClass="RepairRecord">
+      INSERT into fixture_repair_record ( Repair_On, Tong_Id, Description, Repair_Over_On, Workcell_Id, Status, Gmt_Create, Gmt_Modified, Is_Deleted)
+      values ( #RepairOn#, #TongId#, #Description#, #RepairOverOn#, #WorkcellId#, #Status#, #GmtCreate#, #GmtModified#, #IsDeleted#)
+      <selectKey resultClass="int" type="post" property="id" >
+        select LAST_INSERT_ID() as value
+      </selectKey>
+    </insert>
+
+    <!--更新单条记录-->
+    <update id="UpdateRepairRecord" parameterClass="RepairRecord">
+      UPDATE fixture_repair_record SET
+      Repair_On = #RepairOn#,
+      Tong_Id = #TongId#,
+      Description = #Description#,
+      Repair_Over_On = #RepairOverOn#,
+      Workcell_Id = #WorkcellId#,
+      Status = #Status#,
+      Gmt_Create = #GmtCreate#,
+      Gmt_Modified = #GmtModified#
+      WHERE id = #Id# AND is_deleted = 0
+    </update>
+
+    <!--根据主键删除单条记录-->
+    <update id="DeleteRepairRecordById" parameterClass="RepairRecord">
+      UPDATE fixture_repair_record
+      SET Is_Deleted = 1
+      WHERE id = #id#
+    </update>
+
+  </statements>
+
+</sqlMap>
+
